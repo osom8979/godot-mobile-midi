@@ -1,0 +1,18 @@
+[general]
+
+singleton=false
+load_once=true
+symbol_prefix="gmm_godot_"
+reloadable=true
+
+[entry]
+
+OSX.64="res://lib/libgodot-mobile-midi.dylib"
+Windows.64="res://lib/libgodot-mobile-midi.dll"
+X11.64="res://lib/libgodot-mobile-midi.so"
+
+[dependencies]
+
+OSX.64=[  ]
+Windows.64=[  ]
+X11.64=[  ]

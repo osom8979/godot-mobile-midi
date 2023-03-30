@@ -1,6 +1,12 @@
 # GIT IGNORE
 
+.cache/
 android_sdk/
+cmake-build-*/
+
 *.zip
+*.so
+
 godot
 android.license
+compile_commands.json

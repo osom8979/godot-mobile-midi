@@ -16,7 +16,6 @@ ANDROID_SDK_DIST="$ROOT_DIR/commandlinetools-linux-9477386_latest.zip"
 ANDROID_SDK_ROOT="$ROOT_DIR/android_sdk"
 ANDROID_SDK_CMDLINE_TOOLS_DIR="$ANDROID_SDK_ROOT/cmdline-tools"
 ANDROID_SDK_CMDLINE_TOOLS_LATEST_DIR="$ANDROID_SDK_ROOT/cmdline-tools/latest"
-ANDROID_SDK_LICENSE="$ROOT_DIR/android.license"
 
 GODOT_URL="https://downloads.tuxfamily.org/godotengine/3.2.4/rc5/Godot_v3.2.4-rc5_x11.64.zip"
 
@@ -74,7 +73,7 @@ function download_android_sdk
         exit 1
     fi
 
-    yes | "$SDKMANAGER_CMD" --licenses > "$ANDROID_SDK_LICENSE"
+    yes | "$SDKMANAGER_CMD" --licenses > /dev/null
 }
 
 function download_godot
