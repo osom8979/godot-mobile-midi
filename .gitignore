@@ -1,0 +1,6 @@
+# GIT IGNORE
+
+android_sdk/
+*.zip
+godot
+android.license
