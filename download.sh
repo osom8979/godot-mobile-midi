@@ -17,10 +17,13 @@ ANDROID_SDK_ROOT="$ROOT_DIR/android_sdk"
 ANDROID_SDK_CMDLINE_TOOLS_DIR="$ANDROID_SDK_ROOT/cmdline-tools"
 ANDROID_SDK_CMDLINE_TOOLS_LATEST_DIR="$ANDROID_SDK_ROOT/cmdline-tools/latest"
 
+
 GODOT_URL="https://downloads.tuxfamily.org/godotengine/3.2.4/rc5/Godot_v3.2.4-rc5_x11.64.zip"
 
 SDKMANAGER_CMD="$ANDROID_SDK_CMDLINE_TOOLS_LATEST_DIR/bin/sdkmanager"
 GODOT_CMD="$ROOT_DIR/godot"
+
+GODOT_TEMPLATES_DIR="$HOME/.local/share/godot/templates"
 
 function print_error
 {
@@ -74,6 +77,8 @@ function download_android_sdk
     fi
 
     yes | "$SDKMANAGER_CMD" --licenses > /dev/null
+    "$SDKMANAGER_CMD" 'ndk;25.2.9519653'
+    "$SDKMANAGER_CMD" 'cmake;3.22.1'
 }
 
 function download_godot

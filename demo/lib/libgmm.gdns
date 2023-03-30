@@ -3,5 +3,5 @@
 [ext_resource path="res://lib/libgmm.gdnlib" type="GDNativeLibrary" id=1]
 
 [resource]
-class_name = "Gmm"
+class_name = "GodotMobileMidi"
 library = ExtResource( 1 )

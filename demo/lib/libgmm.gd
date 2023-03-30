@@ -1,7 +1,7 @@
 extends Node
 
-const Gmm = preload("res://lib/libgmm.gdns")
-onready var gmm = Gmm.new()
+const GodotMobileMidi = preload("res://lib/libgmm.gdns")
+onready var gmm = GodotMobileMidi.new()
 
 func _ready():
     pass

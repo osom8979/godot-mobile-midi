@@ -6,6 +6,8 @@ cmake-build-*/
 
 *.zip
 *.so
+*.apk
+*.apk.idsig
 
 godot
 android.license

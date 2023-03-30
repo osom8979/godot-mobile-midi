@@ -7,12 +7,10 @@ reloadable=true
 
 [entry]
 
-OSX.64="res://lib/libgodot-mobile-midi.dylib"
-Windows.64="res://lib/libgodot-mobile-midi.dll"
-X11.64="res://lib/libgodot-mobile-midi.so"
+Android.armeabi-v7a="res://lib/libgodot-mobile-midi-android-armeabi-v7a.so"
+X11.64="res://lib/libgodot-mobile-midi-linux.so"
 
 [dependencies]
 
-OSX.64=[  ]
-Windows.64=[  ]
+Android.armeabi-v7a=[  ]
 X11.64=[  ]

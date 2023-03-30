@@ -86,13 +86,13 @@ void GDN_EXPORT gmm_godot_nativescript_init(void * handle)
     godot_instance_destroy_func destroy = {NULL, NULL, NULL};
     destroy.destroy_func = &gmm_del;
 
-    g_nativescript_api->godot_nativescript_register_class(handle, "Gmm", "Reference", create, destroy);
+    g_nativescript_api->godot_nativescript_register_class(handle, "GodotMobileMidi", "Reference", create, destroy);
 
     godot_instance_method get_data = {NULL, NULL, NULL};
     get_data.method = &gmm_get_data;
 
     godot_method_attributes attributes = {GODOT_METHOD_RPC_MODE_DISABLED};
 
-    g_nativescript_api->godot_nativescript_register_method(handle, "Gmm", "get_data", attributes, get_data);
+    g_nativescript_api->godot_nativescript_register_method(handle, "GodotMobileMidi", "get_data", attributes, get_data);
 }
 

@@ -1,6 +1,10 @@
-cmake_minimum_required (VERSION 3.3.0)
+cmake_minimum_required (VERSION 3.16.0)
 
-set (PROJECT_NAME "godot-mobile-midi")
+if (DEFINED ANDROID_ABI)
+    set (PROJECT_NAME "godot-mobile-midi-android-${ANDROID_ABI}")
+else ()
+    set (PROJECT_NAME "godot-mobile-midi-linux")
+endif ()
 
 project (${PROJECT_NAME})
 
@@ -11,7 +15,8 @@ add_library (${PROJECT_NAME} SHARED main.c)
 target_compile_definitions (${PROJECT_NAME} PRIVATE "GODOT_MOBILE_MIDI")
 target_include_directories (${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/godot-headers")
 target_compile_options (${PROJECT_NAME} PRIVATE "-fPIC")
-target_link_libraries (${PROJECT_NAME} PRIVATE "-rdynamic")
+
+# target_link_libraries (${PROJECT_NAME} PRIVATE "-rdynamic")
 
 set (COMPILE_COMMANDS_NAME cc)
 set (COMPILE_COMMANDS_SRC "${CMAKE_BINARY_DIR}/compile_commands.json")
@@ -27,4 +32,3 @@ install (TARGETS ${PROJECT_NAME}
          RUNTIME DESTINATION bin
          LIBRARY DESTINATION lib
          ARCHIVE DESTINATION lib)
-
