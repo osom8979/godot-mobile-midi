@@ -8,4 +8,4 @@ func _ready():
     pass
 
 func _on_Button_pressed():
-    rtl.append_bbcode(gmm.get_platform_name() + "\n")
+    rtl.append_bbcode(gmm.hello_world() + "\n")

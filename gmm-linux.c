@@ -1,15 +1,5 @@
-#if defined(__APPLE__)
-#include "TargetConditionals.h"
-#endif
-
-#ifndef TARGET_OS_IPHONE
-#error Only iOS platform is supported
-#endif
-
 #include "gmm.h"
 #include <string.h>
-#include <CoreFoundation/CoreFoundation.h>
-#include <CoreMIDI/CoreMIDI.h>
 
 typedef struct gmm_platform
 {

@@ -12,18 +12,25 @@
 #define GODOT_INTERFACE(method) gmm_godot_##method
 #endif
 
+#define PLATFORM_INDEX_ANDROID  0
+#define PLATFORM_INDEX_IOS      1
+#define PLATFORM_INDEX_WINDOWS  2
+#define PLATFORM_INDEX_MAC      3
+#define PLATFORM_INDEX_LINUX    4
+
 bool is_android();
 bool is_ios();
 
 char const * const get_platform_name();
+int get_platform_index();
 
-void set_api(const godot_gdnative_core_api_struct * value);
-void set_nativescript_api(const godot_gdnative_ext_nativescript_api_struct * value);
-void set_android_api(const godot_gdnative_ext_android_api_struct * value);
+void set_core_api(const struct godot_gdnative_core_api_struct * value);
+void set_nativescript_api(const struct godot_gdnative_ext_nativescript_api_struct * value);
+void set_android_api(const struct godot_gdnative_ext_android_api_struct * value);
 
-const godot_gdnative_core_api_struct * get_api();
-const godot_gdnative_ext_nativescript_api_struct * get_nativescript_api();
-const godot_gdnative_ext_android_api_struct * get_android_api();
+const struct godot_gdnative_core_api_struct * get_core_api();
+const struct godot_gdnative_ext_nativescript_api_struct * get_nativescript_api();
+const struct godot_gdnative_ext_android_api_struct * get_android_api();
 
 void clear_apis();
 
@@ -31,10 +38,11 @@ void clear_apis();
 // Interfaces
 // ----------
 
-#define MAX_PLATFORM_LENGTH 16
+#define MAX_PLATFORM_NAME_LENGTH 16
 
-typedef struct _gmm_data {
-    char platform[MAX_PLATFORM_LENGTH];
+typedef struct gmm_data {
+    char platform_name[MAX_PLATFORM_NAME_LENGTH];
+    struct gmm_platform * platform;
     godot_variant self;
 } gmm_data;
 
@@ -54,5 +62,13 @@ godot_variant gmm_init(
         void * user,
         int argc,
         godot_variant ** argv);
+
+// -------------------
+// Platform Interfaces
+// -------------------
+
+struct gmm_platform * gmm_platform_alloc();
+void gmm_platform_free(struct gmm_platform * platform);
+bool gmm_platform_init(struct gmm_platform * platform);
 
 #endif // __DEFINED__GMM_H__

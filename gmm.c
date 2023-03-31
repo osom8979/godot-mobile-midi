@@ -3,18 +3,18 @@
 #include <assert.h>
 #include <string.h>
 
-#if defined(__ANDROID__)
-# include "gmm-android.h"
-#elif defined(__APPLE__)
-# include "TargetConditionals.h"
-# if TARGET_OS_IPHONE
-#  include "gmm-ios.h"
-# endif
-#endif
+// #if defined(__ANDROID__)
+// # include "gmm-android.h"
+// #elif defined(__APPLE__)
+// # include "TargetConditionals.h"
+// # if TARGET_OS_IPHONE
+// #  include "gmm-ios.h"
+// # endif
+// #endif
 
-const godot_gdnative_core_api_struct * g_api = NULL;
-const godot_gdnative_ext_nativescript_api_struct * g_nativescript_api = NULL;
-const godot_gdnative_ext_android_api_struct * g_android_api = NULL;
+const struct godot_gdnative_core_api_struct * g_core_api = NULL;
+const struct godot_gdnative_ext_nativescript_api_struct * g_nativescript_api = NULL;
+const struct godot_gdnative_ext_android_api_struct * g_android_api = NULL;
 
 bool is_android()
 {
@@ -45,39 +45,54 @@ char const * const get_platform_name()
     }
 }
 
-void set_api(const godot_gdnative_core_api_struct * value)
+int get_platform_index()
 {
-    g_api = value;
+#if defined(__ANDROID__)
+    return PLATFORM_INDEX_ANDROID;
+#elif defined(__APPLE__)
+# if defined(TARGET_OS_IPHONE)
+    return PLATFORM_INDEX_IOS;
+# else
+    return PLATFORM_INDEX_MAC;
+# endif
+#else
+    return PLATFORM_INDEX_LINUX;
+#endif
 }
 
-void set_nativescript_api(const godot_gdnative_ext_nativescript_api_struct * value)
+void set_core_api(const struct godot_gdnative_core_api_struct * value)
+{
+    g_core_api = value;
+}
+
+void set_nativescript_api(const struct godot_gdnative_ext_nativescript_api_struct * value)
 {
     g_nativescript_api = value;
 }
 
-void set_android_api(const godot_gdnative_ext_android_api_struct * value)
+void set_android_api(const struct godot_gdnative_ext_android_api_struct * value)
 {
     g_android_api = value;
 }
 
-const godot_gdnative_core_api_struct * get_api()
+const struct godot_gdnative_core_api_struct * get_core_api()
 {
-    return g_api;
+    return g_core_api;
 }
 
-const godot_gdnative_ext_nativescript_api_struct * get_nativescript_api()
+const struct godot_gdnative_ext_nativescript_api_struct * get_nativescript_api()
 {
     return g_nativescript_api;
 }
 
-const godot_gdnative_ext_android_api_struct * get_android_api()
+const struct godot_gdnative_ext_android_api_struct * get_android_api()
 {
     return g_android_api;
 }
 
 void clear_apis()
 {
-    g_api = NULL;
+    g_core_api = NULL;
     g_nativescript_api = NULL;
     g_android_api = NULL;
 }
@@ -88,20 +103,26 @@ void clear_apis()
 
 void * gmm_new(godot_object * obj, void * method)
 {
-    assert(g_api != NULL);
-    gmm_data * user = (gmm_data*) g_api->godot_alloc(sizeof(gmm_data));
-    memset(user, 0x00, sizeof(gmm_data));
+    assert(g_core_api != NULL);
 
-    strncpy(user->platform, get_platform_name(), MAX_PLATFORM_LENGTH);
+    gmm_data * gmm = (gmm_data*) g_core_api->godot_alloc(sizeof(gmm_data));
+    memset(gmm, 0x00, sizeof(gmm_data));
 
-    return (void*)user;
+    strncpy(gmm->platform_name, get_platform_name(), MAX_PLATFORM_NAME_LENGTH);
+    gmm->platform = gmm_platform_alloc();
+
+    return (void*)gmm;
 }
 
 void gmm_del(godot_object * obj, void * method, void * user)
 {
-    assert(g_api != NULL);
+    assert(g_core_api != NULL);
     assert(user != NULL);
-    g_api->godot_free(user);
+
+    gmm_data * gmm = (gmm_data*)user;
+    gmm_platform_free(gmm->platform);
+
+    g_core_api->godot_free(gmm);
 }
 
 godot_variant gmm_get_platform_name(
@@ -111,9 +132,9 @@ godot_variant gmm_get_platform_name(
         int argc,
         godot_variant ** argv)
 {
-    assert(g_api != NULL);
+    assert(g_core_api != NULL);
     assert(user != NULL);
-    gmm_data * data = (gmm_data*)user;
+    gmm_data * gmm = (gmm_data*)user;
 
     // jclass ctx = env->FindClass("android/content/Context");
     // jfieldID fid = env->GetStaticFieldID(ctx,"TELEPHONY_SERVICE","Ljava/lang/String;");
@@ -127,25 +148,14 @@ godot_variant gmm_get_platform_name(
 
     // strReturn = env->GetStringUTFChars(str_tm, 0);
 
-    // if (g_android_api != NULL) {
-    //     void * env = g_android_api->godot_android_get_env();
-    //     if (env != NULL) {
-    //         strcpy(data->data, "Hello, World 2");
-    //     } else {
-    //         strcpy(data->data, "Hello, World 1");
-    //     }
-    // } else {
-    //     strcpy(data->data, "Hello, World 0");
-    // }
-
     godot_string text;
-    g_api->godot_string_new(&text);
-    g_api->godot_string_parse_utf8(&text, data->platform);
+    g_core_api->godot_string_new(&text);
+    g_core_api->godot_string_parse_utf8(&text, gmm->platform_name);
 
     godot_variant result;
-    g_api->godot_variant_new_string(&result, &text);
+    g_core_api->godot_variant_new_string(&result, &text);
 
-    g_api->godot_string_destroy(&text);
+    g_core_api->godot_string_destroy(&text);
 
     return result;
 }
@@ -157,16 +167,16 @@ godot_variant gmm_init(
         int argc,
         godot_variant ** argv)
 {
-    assert(g_api != NULL);
+    assert(g_core_api != NULL);
     assert(user != NULL);
     assert(argc >= 1);
     assert(argv[0] != NULL);
-    gmm_data * data = (gmm_data*)user;
+    gmm_data * gmm = (gmm_data*)user;
 
-    g_api->godot_variant_new_copy(&data->self, argv[0]);
+    g_core_api->godot_variant_new_copy(&gmm->self, argv[0]);
+    bool init_result = gmm_platform_init(gmm->platform);
 
     godot_variant ret;
-    g_api->godot_variant_new_bool(&ret, GODOT_TRUE);
+    g_core_api->godot_variant_new_bool(&ret, init_result ? GODOT_TRUE : GODOT_FALSE);
     return ret;
 }
-
