@@ -109,10 +109,10 @@ godot_variant gmm_get_platform_name(
         void * method,
         void * user,
         int argc,
-        godot_variant ** args)
+        godot_variant ** argv)
 {
     assert(g_api != NULL);
-
+    assert(user != NULL);
     gmm_data * data = (gmm_data*)user;
 
     // jclass ctx = env->FindClass("android/content/Context");
@@ -148,5 +148,25 @@ godot_variant gmm_get_platform_name(
     g_api->godot_string_destroy(&text);
 
     return result;
+}
+
+godot_variant gmm_init(
+        godot_object * obj,
+        void * method,
+        void * user,
+        int argc,
+        godot_variant ** argv)
+{
+    assert(g_api != NULL);
+    assert(user != NULL);
+    assert(argc >= 1);
+    assert(argv[0] != NULL);
+    gmm_data * data = (gmm_data*)user;
+
+    g_api->godot_variant_new_copy(&data->self, argv[0]);
+
+    godot_variant ret;
+    g_api->godot_variant_new_bool(&ret, GODOT_TRUE);
+    return ret;
 }
 

@@ -34,9 +34,8 @@ void clear_apis();
 #define MAX_PLATFORM_LENGTH 16
 
 typedef struct _gmm_data {
-    char midi_context_name[256];
     char platform[MAX_PLATFORM_LENGTH];
-    void * midi_context;
+    godot_variant self;
 } gmm_data;
 
 GDCALLINGCONV void * gmm_new(godot_object * obj, void * method);
@@ -48,5 +47,12 @@ godot_variant gmm_get_platform_name(
         void * user,
         int argc,
         godot_variant ** args);
+
+godot_variant gmm_init(
+        godot_object * obj,
+        void * method,
+        void * user,
+        int argc,
+        godot_variant ** argv);
 
 #endif // __DEFINED__GMM_H__
