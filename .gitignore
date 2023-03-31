@@ -1,6 +1,7 @@
 # GIT IGNORE
 
 .cache/
+.ccls-cache/
 android_sdk/
 cmake-build-*/
 

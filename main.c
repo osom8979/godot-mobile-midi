@@ -1,70 +1,21 @@
-#include <gdnative_api_struct.gen.h>
-
 #include <assert.h>
-#include <string.h>
 
-const godot_gdnative_core_api_struct * g_api = NULL;
-const godot_gdnative_ext_nativescript_api_struct * g_nativescript_api = NULL;
+#include "gmm.h"
 
-// GMM == 'G'odot 'M'obile 'M'idi
-
-typedef struct _gmm_data {
-    char data[256];
-} gmm_data;
-
-GDCALLINGCONV void * gmm_new(godot_object * obj, void * method)
+void GDN_EXPORT GODOT_INTERFACE(gdnative_init)(godot_gdnative_init_options * options)
 {
-    assert(g_api != NULL);
+    const godot_gdnative_core_api_struct * api = options->api_struct;
+    assert(api != NULL);
 
-    gmm_data * result = g_api->godot_alloc(sizeof(gmm_data));
-    strcpy(result->data, "Hello, World!");
-    return result;
-}
+    set_api(api);
 
-GDCALLINGCONV void gmm_del(godot_object * obj, void * method, void * user)
-{
-    assert(g_api != NULL);
-    assert(user != NULL);
-
-    g_api->godot_free(user);
-}
-
-godot_variant gmm_get_data(
-        godot_object * obj,
-        void * method,
-        void * user,
-        int argc,
-        godot_variant ** args)
-{
-    assert(g_api != NULL);
-
-    gmm_data * gmm_user = (gmm_data*)user;
-
-    godot_string text;
-    g_api->godot_string_new(&text);
-    g_api->godot_string_parse_utf8(&text, gmm_user->data);
-
-    godot_variant result;
-    g_api->godot_variant_new_string(&result, &text);
-
-    g_api->godot_string_destroy(&text);
-
-    return result;
-}
-
-// -------------------
-// Godot Native Export
-// -------------------
-
-void GDN_EXPORT gmm_godot_gdnative_init(godot_gdnative_init_options * options)
-{
-    g_api = options->api_struct;
-    assert(g_api != NULL);
-
-    for (unsigned i = 0; i < g_api->num_extensions; ++i) {
-        switch (g_api->extensions[i]->type) {
+    for (unsigned i = 0; i < api->num_extensions; ++i) {
+        switch (api->extensions[i]->type) {
             case GDNATIVE_EXT_NATIVESCRIPT:
-                g_nativescript_api = (godot_gdnative_ext_nativescript_api_struct*)g_api->extensions[i];
+                set_nativescript_api((godot_gdnative_ext_nativescript_api_struct*)api->extensions[i]);
+                break;
+            case GDNATIVE_EXT_ANDROID:
+                set_android_api((godot_gdnative_ext_android_api_struct*)api->extensions[i]);
                 break;
             default:
                 break;
@@ -72,27 +23,45 @@ void GDN_EXPORT gmm_godot_gdnative_init(godot_gdnative_init_options * options)
     }
 }
 
-void GDN_EXPORT gmm_godot_gdnative_terminate(godot_gdnative_terminate_options * options)
+void GDN_EXPORT GODOT_INTERFACE(gdnative_terminate)(godot_gdnative_terminate_options * options)
 {
-    g_api = NULL;
-    g_nativescript_api = NULL;
+    clear_apis();
 }
 
-void GDN_EXPORT gmm_godot_nativescript_init(void * handle)
+void GDN_EXPORT GODOT_INTERFACE(nativescript_init)(void * handle)
 {
-    godot_instance_create_func create = {NULL, NULL, NULL};
-    create.create_func = &gmm_new;
+    const godot_gdnative_ext_nativescript_api_struct * nativescript = get_nativescript_api();
+    assert(nativescript != NULL);
 
-    godot_instance_destroy_func destroy = {NULL, NULL, NULL};
-    destroy.destroy_func = &gmm_del;
+    {
+        // Register Create and Destroy Functions
 
-    g_nativescript_api->godot_nativescript_register_class(handle, "GodotMobileMidi", "Reference", create, destroy);
+        godot_instance_create_func create = {NULL, NULL, NULL};
+        create.create_func = &gmm_new;
 
-    godot_instance_method get_data = {NULL, NULL, NULL};
-    get_data.method = &gmm_get_data;
+        godot_instance_destroy_func destroy = {NULL, NULL, NULL};
+        destroy.destroy_func = &gmm_del;
 
-    godot_method_attributes attributes = {GODOT_METHOD_RPC_MODE_DISABLED};
+        nativescript->godot_nativescript_register_class(
+                handle,
+                GMM_CLASS_NAME,
+                GMM_CLASS_BASE,
+                create,
+                destroy);
+    }
 
-    g_nativescript_api->godot_nativescript_register_method(handle, "GodotMobileMidi", "get_data", attributes, get_data);
+    {
+        // Register 'get_data' Functions
+
+        godot_instance_method get_data = {NULL, NULL, NULL};
+        get_data.method = &gmm_get_platform_name;
+
+        godot_method_attributes attributes = {GODOT_METHOD_RPC_MODE_DISABLED};
+        nativescript->godot_nativescript_register_method(
+                handle,
+                GMM_CLASS_NAME,
+                "get_platform_name",
+                attributes,
+                get_data);
+    }
 }
-

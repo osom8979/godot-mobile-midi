@@ -33,5 +33,6 @@ fi
     "$ROOT_DIR"
 
 make -C "$BUILD_DIR"
+make -C "$BUILD_DIR" cc
 make -C "$BUILD_DIR" install
 rm -rf "$BUILD_DIR"
