@@ -43,7 +43,11 @@ void clear_apis();
 typedef struct gmm_data {
     char platform_name[MAX_PLATFORM_NAME_LENGTH];
     struct gmm_platform * platform;
+
     godot_variant self;
+    godot_string on_read_midi_func_name;
+
+    bool (*call_on_read_midi)(struct gmm_data * gmm, int v0, int v1);
 } gmm_data;
 
 GDCALLINGCONV void * gmm_new(godot_object * obj, void * method);

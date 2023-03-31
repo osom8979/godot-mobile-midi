@@ -97,6 +97,33 @@ void clear_apis()
     g_android_api = NULL;
 }
 
+// -------------
+// Internal APIs
+// -------------
+
+bool _call_on_read_midi(struct gmm_data * gmm, int v0, int v1)
+{
+    godot_variant arg0;
+    godot_variant arg1;
+
+    godot_variant const * args[2];
+    args[0] = &arg0;
+    args[1] = &arg1;
+
+    godot_variant_call_error err;
+
+    g_core_api->godot_variant_new_int(&arg0, v0);
+    g_core_api->godot_variant_new_int(&arg1, v1);
+    g_core_api->godot_variant_call(
+            &gmm->self,
+            &gmm->on_read_midi_func_name,
+            args,
+            2,
+            &err);
+
+    return err.error == GODOT_CALL_ERROR_CALL_OK ? true : false;
+}
+
 // ----------
 // Interfaces
 // ----------
@@ -110,6 +137,7 @@ void * gmm_new(godot_object * obj, void * method)
 
     strncpy(gmm->platform_name, get_platform_name(), MAX_PLATFORM_NAME_LENGTH);
     gmm->platform = gmm_platform_alloc();
+    gmm->call_on_read_midi = &_call_on_read_midi;
 
     return (void*)gmm;
 }
@@ -120,8 +148,11 @@ void gmm_del(godot_object * obj, void * method, void * user)
     assert(user != NULL);
 
     gmm_data * gmm = (gmm_data*)user;
-    gmm_platform_free(gmm->platform);
 
+    g_core_api->godot_variant_destroy(&gmm->self);
+    g_core_api->godot_string_destroy(&gmm->on_read_midi_func_name);
+
+    gmm_platform_free(gmm->platform);
     g_core_api->godot_free(gmm);
 }
 
@@ -174,9 +205,12 @@ godot_variant gmm_init(
     gmm_data * gmm = (gmm_data*)user;
 
     g_core_api->godot_variant_new_copy(&gmm->self, argv[0]);
-    bool init_result = gmm_platform_init(gmm->platform);
 
+    godot_string read_cb_name = g_core_api->godot_variant_as_string(argv[1]);
+    g_core_api->godot_string_new_copy(&gmm->on_read_midi_func_name, &read_cb_name);
+
+    bool platform_init_result = gmm_platform_init(gmm->platform);
     godot_variant ret;
-    g_core_api->godot_variant_new_bool(&ret, init_result ? GODOT_TRUE : GODOT_FALSE);
+    g_core_api->godot_variant_new_bool(&ret, platform_init_result ? GODOT_TRUE : GODOT_FALSE);
     return ret;
 }
