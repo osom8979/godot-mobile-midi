@@ -39,6 +39,11 @@ void clear_apis();
 // ----------
 
 #define MAX_PLATFORM_NAME_LENGTH 16
+#define MAX_DEVICE_NAME_LENGTH 128
+
+typedef struct gmm_device_info {
+    char device_name[MAX_DEVICE_NAME_LENGTH];
+} gmm_device_info;
 
 typedef struct gmm_data {
     char platform_name[MAX_PLATFORM_NAME_LENGTH];
@@ -47,6 +52,7 @@ typedef struct gmm_data {
     godot_variant self;
     godot_string on_read_midi_func_name;
 
+    void (*print)(const char * message);
     bool (*call_on_read_midi)(struct gmm_data * gmm, int v0, int v1);
 } gmm_data;
 
@@ -67,6 +73,13 @@ godot_variant gmm_init(
         int argc,
         godot_variant ** argv);
 
+godot_variant gmm_get_device_count(
+        godot_object * obj,
+        void * method,
+        void * user,
+        int argc,
+        godot_variant ** args);
+
 // -------------------
 // Platform Interfaces
 // -------------------
@@ -74,5 +87,7 @@ godot_variant gmm_init(
 struct gmm_platform * gmm_platform_alloc();
 void gmm_platform_free(struct gmm_platform * platform);
 bool gmm_platform_init(struct gmm_platform * platform);
+
+int gmm_platform_devices(struct gmm_data * gmm);
 
 #endif // __DEFINED__GMM_H__

@@ -22,16 +22,22 @@ margin_right = 620.0
 margin_bottom = 340.0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
-margin_right = 92.0
+margin_right = 97.0
 margin_bottom = 320.0
 
-[node name="Button" type="Button" parent="HBoxContainer/VBoxContainer"]
-margin_right = 92.0
+[node name="HelloButton" type="Button" parent="HBoxContainer/VBoxContainer"]
+margin_right = 97.0
 margin_bottom = 20.0
 text = "Hello,World!"
 
+[node name="DeviceCountButton" type="Button" parent="HBoxContainer/VBoxContainer"]
+margin_top = 24.0
+margin_right = 97.0
+margin_bottom = 44.0
+text = "Device Count"
+
 [node name="RichTextLabel" type="RichTextLabel" parent="HBoxContainer"]
-margin_left = 96.0
+margin_left = 101.0
 margin_right = 600.0
 margin_bottom = 320.0
 size_flags_horizontal = 3
@@ -39,4 +45,5 @@ size_flags_vertical = 3
 
 [node name="libgmm" parent="." instance=ExtResource( 2 )]
 
-[connection signal="pressed" from="HBoxContainer/VBoxContainer/Button" to="." method="_on_Button_pressed"]
+[connection signal="pressed" from="HBoxContainer/VBoxContainer/HelloButton" to="." method="_on_HelloButton_pressed"]
+[connection signal="pressed" from="HBoxContainer/VBoxContainer/DeviceCountButton" to="." method="_on_DeviceCountButton_pressed"]

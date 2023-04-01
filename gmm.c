@@ -101,6 +101,15 @@ void clear_apis()
 // Internal APIs
 // -------------
 
+void _print(const char * message)
+{
+    godot_string str;
+    g_core_api->godot_string_new(&str);
+    g_core_api->godot_string_parse_utf8(&str, message);
+    g_core_api->godot_print(&str);
+    g_core_api->godot_string_destroy(&str);
+}
+
 bool _call_on_read_midi(struct gmm_data * gmm, int v0, int v1)
 {
     godot_variant arg0;
@@ -138,6 +147,7 @@ void * gmm_new(godot_object * obj, void * method)
     strncpy(gmm->platform_name, get_platform_name(), MAX_PLATFORM_NAME_LENGTH);
     gmm->platform = gmm_platform_alloc();
     gmm->call_on_read_midi = &_call_on_read_midi;
+    gmm->print = &_print;
 
     return (void*)gmm;
 }
@@ -212,5 +222,23 @@ godot_variant gmm_init(
     bool platform_init_result = gmm_platform_init(gmm->platform);
     godot_variant ret;
     g_core_api->godot_variant_new_bool(&ret, platform_init_result ? GODOT_TRUE : GODOT_FALSE);
+    return ret;
+}
+
+godot_variant gmm_get_device_count(
+        godot_object * obj,
+        void * method,
+        void * user,
+        int argc,
+        godot_variant ** args)
+{
+    assert(g_core_api != NULL);
+    assert(user != NULL);
+    gmm_data * gmm = (gmm_data*)user;
+
+    int count = gmm_platform_devices(gmm);
+
+    godot_variant ret;
+    g_core_api->godot_variant_new_int(&ret, count);
     return ret;
 }
