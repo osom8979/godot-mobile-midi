@@ -38,11 +38,13 @@ void clear_apis();
 // Interfaces
 // ----------
 
-#define MAX_PLATFORM_NAME_LENGTH 16
 #define MAX_DEVICE_NAME_LENGTH 128
+#define MAX_PLATFORM_NAME_LENGTH 16
 
 typedef struct gmm_device_info {
     char device_name[MAX_DEVICE_NAME_LENGTH];
+    int input_count;
+    int output_count;
 } gmm_device_info;
 
 typedef struct gmm_data {
@@ -88,6 +90,6 @@ struct gmm_platform * gmm_platform_alloc();
 void gmm_platform_free(struct gmm_platform * platform);
 bool gmm_platform_init(struct gmm_platform * platform);
 
-int gmm_platform_devices(struct gmm_data * gmm);
+struct gmm_device_info * gmm_platform_devices(struct gmm_data * gmm, unsigned * length);
 
 #endif // __DEFINED__GMM_H__

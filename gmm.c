@@ -236,9 +236,19 @@ godot_variant gmm_get_device_count(
     assert(user != NULL);
     gmm_data * gmm = (gmm_data*)user;
 
-    int count = gmm_platform_devices(gmm);
+    unsigned device_length = 0;
+    struct gmm_device_info * devices = gmm_platform_devices(gmm, &device_length);
+
+    if (device_length >= 1) {
+        assert(devices != NULL);
+        for (unsigned i = 0; i < device_length; ++i) {
+            struct gmm_device_info * device = devices + i;
+            gmm->print(device->device_name);
+        }
+        g_core_api->godot_free(devices);
+    }
 
     godot_variant ret;
-    g_core_api->godot_variant_new_int(&ret, count);
+    g_core_api->godot_variant_new_int(&ret, device_length);
     return ret;
 }

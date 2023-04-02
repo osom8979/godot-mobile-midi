@@ -33,7 +33,7 @@ bool gmm_platform_init(struct gmm_platform * platform)
     return true;
 }
 
-int gmm_platform_device_count(struct gmm_data * gmm)
+struct gmm_device_info * gmm_platform_devices(struct gmm_data * gmm, unsigned * length)
 {
     return 0;
 }
