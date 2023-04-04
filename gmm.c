@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <string.h>
+#include <stdarg.h>
 
 // #if defined(__ANDROID__)
 // # include "gmm-android.h"
@@ -110,6 +111,17 @@ void _print(const char * message)
     g_core_api->godot_string_destroy(&str);
 }
 
+void _printf(const char * format, ...)
+{
+    char buffer[2048] = {0,};
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, 2048, format, args);
+    va_end(args);
+
+    _print(buffer);
+}
+
 bool _call_on_read_midi(struct gmm_data * gmm, int v0, int v1)
 {
     godot_variant arg0;
@@ -148,6 +160,7 @@ void * gmm_new(godot_object * obj, void * method)
     gmm->platform = gmm_platform_alloc();
     gmm->call_on_read_midi = &_call_on_read_midi;
     gmm->print = &_print;
+    gmm->printf = &_printf;
 
     return (void*)gmm;
 }
@@ -225,7 +238,7 @@ godot_variant gmm_init(
     return ret;
 }
 
-godot_variant gmm_get_device_count(
+godot_variant gmm_get_devices(
         godot_object * obj,
         void * method,
         void * user,
@@ -239,16 +252,74 @@ godot_variant gmm_get_device_count(
     unsigned device_length = 0;
     struct gmm_device_info * devices = gmm_platform_devices(gmm, &device_length);
 
-    if (device_length >= 1) {
-        assert(devices != NULL);
-        for (unsigned i = 0; i < device_length; ++i) {
-            struct gmm_device_info * device = devices + i;
-            gmm->print(device->device_name);
-        }
-        g_core_api->godot_free(devices);
+    godot_dictionary dic;
+    g_core_api->godot_dictionary_new(&dic);
+
+    if (device_length == 0) {
+        assert(devices == NULL);
+
+        godot_variant ret;
+        g_core_api->godot_variant_new_dictionary(&ret, &dic);
+        return ret;
     }
 
+    assert(device_length >= 0);
+    assert(devices != NULL);
+
+    for (unsigned i = 0; i < device_length; ++i) {
+        // Device Manufacturer
+        godot_string device_manufacturer_key;
+        godot_string device_manufacturer_val;
+        g_core_api->godot_string_new(&device_manufacturer_key);
+        g_core_api->godot_string_new(&device_manufacturer_val);
+        g_core_api->godot_string_parse_utf8(&device_manufacturer_key, "manufacturer");
+        g_core_api->godot_string_parse_utf8(&device_manufacturer_val, (devices + i)->manufacturer);
+        // Device Manufacturer - Variant
+        godot_variant device_manufacturer_var_key;
+        godot_variant device_manufacturer_var_val;
+        g_core_api->godot_variant_new_string(&device_manufacturer_var_key, &device_manufacturer_key);
+        g_core_api->godot_variant_new_string(&device_manufacturer_var_val, &device_manufacturer_val);
+        g_core_api->godot_dictionary_set(&dic, &device_manufacturer_var_key, &device_manufacturer_var_val);
+
+        // Device Name
+        godot_string device_name_key;
+        godot_string device_name_val;
+        g_core_api->godot_string_new(&device_name_key);
+        g_core_api->godot_string_new(&device_name_val);
+        g_core_api->godot_string_parse_utf8(&device_name_key, "name");
+        g_core_api->godot_string_parse_utf8(&device_name_val, (devices + i)->name);
+        // Device Name - Variant
+        godot_variant device_name_var_key;
+        godot_variant device_name_var_val;
+        g_core_api->godot_variant_new_string(&device_name_var_key, &device_name_key);
+        g_core_api->godot_variant_new_string(&device_name_var_val, &device_name_val);
+        g_core_api->godot_dictionary_set(&dic, &device_name_var_key, &device_name_var_val);
+
+        // Input Count
+        godot_string input_count_key;
+        g_core_api->godot_string_new(&input_count_key);
+        g_core_api->godot_string_parse_utf8(&input_count_key, "input_count");
+        // Input Count - Variant
+        godot_variant input_count_var_key;
+        godot_variant input_count_var_val;
+        g_core_api->godot_variant_new_string(&input_count_var_key, &input_count_key);
+        g_core_api->godot_variant_new_int(&input_count_var_val, (devices + i)->input_count);
+        g_core_api->godot_dictionary_set(&dic, &input_count_var_key, &input_count_var_val);
+
+        // Output Count
+        godot_string output_count_key;
+        g_core_api->godot_string_new(&output_count_key);
+        g_core_api->godot_string_parse_utf8(&output_count_key, "output_count");
+        // Output Count - Variant
+        godot_variant output_count_var_key;
+        godot_variant output_count_var_val;
+        g_core_api->godot_variant_new_string(&output_count_var_key, &output_count_key);
+        g_core_api->godot_variant_new_int(&output_count_var_val, (devices + i)->output_count);
+        g_core_api->godot_dictionary_set(&dic, &output_count_var_key, &output_count_var_val);
+    }
+    g_core_api->godot_free(devices);
+
     godot_variant ret;
-    g_core_api->godot_variant_new_int(&ret, device_length);
+    g_core_api->godot_variant_new_dictionary(&ret, &dic);
     return ret;
 }

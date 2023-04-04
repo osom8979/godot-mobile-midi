@@ -13,4 +13,4 @@ func _on_HelloButton_pressed():
 
 
 func _on_DeviceCountButton_pressed():
-    rtl.append_bbcode(str(gmm.device_count()) + "\n")
+    rtl.append_bbcode(str(gmm.devices()) + "\n")

@@ -72,16 +72,16 @@ void _register_init(void * handle)
             method);
 }
 
-void _register_get_device_count(void * handle)
+void _register_get_devices(void * handle)
 {
     godot_instance_method method = {NULL, NULL, NULL};
-    method.method = &gmm_get_device_count;
+    method.method = &gmm_get_devices;
 
     godot_method_attributes attributes = {GODOT_METHOD_RPC_MODE_DISABLED};
     get_nativescript_api()->godot_nativescript_register_method(
             handle,
             GMM_CLASS_NAME,
-            "get_device_count",
+            "get_devices",
             attributes,
             method);
 }
@@ -93,5 +93,5 @@ void GDN_EXPORT GODOT_INTERFACE(nativescript_init)(void * handle)
     _register_create_and_destroy(handle);
     _register_get_platform_name(handle);
     _register_init(handle);
-    _register_get_device_count(handle);
+    _register_get_devices(handle);
 }

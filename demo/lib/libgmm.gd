@@ -20,5 +20,5 @@ func hello_world():
     return "Hello, " + _gmm.get_platform_name() + ", Init(" + str(_init) + ")"
 
 
-func device_count():
-    return _gmm.get_device_count()
+func devices():
+    return _gmm.get_devices()
